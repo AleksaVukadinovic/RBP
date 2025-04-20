@@ -86,3 +86,36 @@ FROM DA.DOSIJE
 WHERE MESTORODJENJA LIKE 'N%d';
 
 -- 19. Napraviti masku koja bi mogla da prepozna naredni string "%x_"
+SELECT *
+FROM DA.DOSIJE
+WHERE MESTORODJENJA LIKE  '\%x\_' ESCAPE '\';
+
+-- 20. Izdvojiti podatke o predmetima. Rezultat urediti po ESPB u rastućem poretku.
+SELECT *
+FROM DA.PREDMET
+ORDER BY ESPB;
+
+-- 21. Izdvojiti podatke o predmetima. Rezultat urediti po ESPB u opadajućem poretku.
+SELECT *
+FROM DA.PREDMET
+ORDER BY ESPB DESC;
+
+-- 22. Izdvojiti podatke o predmetima. Rezultat urediti po ESPB u rastućem poretku i po nazivu u opadajućem poretku
+SELECT *
+FROM DA.PREDMET
+ORDER BY ESPB, NAZIV DESC;
+
+-- 23. Izdvojiti ime, prezime i datum upisa na fakultet za studenate koji su fakultet upisali
+-- između 10. jula 2017. i 15.9.2017. godine. Rezultat urediti prema prezimenu studenta.
+SELECT IME, PREZIME, DATUPISA
+FROM DA.DOSIJE
+WHERE DATUPISA BETWEEN '10.07.2017' AND '15.09.2017'
+ORDER BY PREZIME;
+
+-- 24. Izdvojiti podatke o studijskim programima čija je predviđena dužina studiranja 3 ili više godina.
+-- Izdvojiti oznaku i naziv studijskog programa i broj godina predviđenih za studiranje studijskog programa.
+-- Rezultat urediti prema predviđenom broju godina za studiranje i nazivu studijskog programa.
+SELECT  OZNAKA, NAZIV, OBIMESPB / 60 BROJGODINA
+FROM DA.STUDIJSKIPROGRAM
+WHERE OBIMESPB / 60 >= 3
+ORDER BY BROJGODINA, NAZIV;
