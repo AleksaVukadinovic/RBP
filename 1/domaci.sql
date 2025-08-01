@@ -8,7 +8,8 @@ FROM DA.PREDMET;
 
 -- 3. Izdvojiti sva ženska imena studenata.
 SELECT DISTINCT IME
-FROM DA.DOSIJE;
+FROM DA.DOSIJE
+WHERE POL = 'z';
 
 -- 4. Izdvojiti podatke o ispitima koji su održani u ispitnom roku sa oznakom jan1 i na kojima je student dobio 100 poena.
 SELECT *
