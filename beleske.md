@@ -360,7 +360,7 @@ WHERE indeks = ANY (
 
 ---
 
-## 🧠 "SVAKI" <=> "NE POSTOJI NEKI KOJI NIJE"
+## 🧠 "SVAKI" <=> "NE POSTOJI NIJEDAN KOJI NIJE"
 
 Ako želimo da proverimo da **nešto važi za sve**, pišemo to kao:
 > “Ne postoji neki za koji ne važi”.
