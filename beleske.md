@@ -250,3 +250,139 @@ FULL JOIN DA.ISPIT I ON D.INDEKS = I.INDEKS;
 | `LEFT JOIN`    | Svi iz leve + poklapanja iz desne          |
 | `RIGHT JOIN`   | Svi iz desne + poklapanja iz leve          |
 | `FULL JOIN`    | Sve iz obe – i poklapanja i nepoklapanja   |
+
+---
+
+# 🧠 ČAS 3 – Podupiti (Subqueries) u SQL-u
+
+Podupiti (engl. *subqueries*) su SELECT upiti unutar drugih upita. Mogu se koristiti u:
+- WHERE klauzuli (najčešće),
+- FROM klauzuli (kao privremene tabele),
+- SELECT klauzuli (agregatne vrednosti po kolonama).
+
+---
+
+## 🎯 [NOT] IN (SELECT ...)
+
+Proveravamo da li se neka vrednost nalazi (ili ne nalazi) među rezultatima podupita.
+
+```sql
+-- Primer: Izdvojiti studente koji su polagali neki ispit:
+SELECT *
+FROM dosije
+WHERE indeks IN (
+  SELECT indeks
+  FROM ispit
+);
+```
+
+> Važno: Vraćeni podaci u podupitu moraju imati isti broj kolona kao levo od `IN`.
+
+Može se koristiti i za više kolona:
+
+```sql
+WHERE (oznakaRoka, skGodina) IN (
+  SELECT oznaka, godina
+  FROM ispitnirok
+);
+```
+
+---
+
+## 🧪 [NOT] EXISTS (SELECT ...)
+
+Uslov je zadovoljen ako podupit vraća bar jedan red (ili nijedan, u slučaju `NOT EXISTS`).
+
+```sql
+-- Primer: Izdvojiti predmete koje je neki student položio
+SELECT naziv
+FROM predmet P
+WHERE EXISTS (
+  SELECT *
+  FROM ispit I
+  WHERE I.idpredmeta = P.id AND I.status = 'o'
+);
+```
+
+---
+
+## 🔁 X < ALL (SELECT ...)
+
+Uslov važi ako je **X manje od svih vrednosti** koje vraća podupit.
+
+```sql
+-- Primer: predmeti sa najmanjim brojem espb
+SELECT *
+FROM predmet
+WHERE espb < ALL (
+  SELECT espb
+  FROM predmet
+  WHERE espb IS NOT NULL
+);
+```
+
+> Operator može biti `<`, `=`, `>=`, itd.
+
+---
+
+## 🔁 X < SOME (SELECT ...) ili X < ANY (SELECT ...)
+
+Uslov važi ako je **X manje od bar jedne vrednosti** iz podupita.
+
+```sql
+-- Primer: predmeti sa manje bodova nego neki drugi predmet
+SELECT *
+FROM predmet
+WHERE espb < SOME (
+  SELECT espb
+  FROM predmet
+  WHERE naziv LIKE 'Mat%'
+);
+```
+
+Napomena: `SOME` i `ANY` su sinonimi u ovom kontekstu.
+
+---
+
+## ❗ X = ANY (SELECT ...)
+
+Ekvivalentno `IN`, proverava da li je `X` jednako **nekoj vrednosti** iz podupita.
+
+```sql
+-- Primer: studenti koji su upisali neki predmet
+SELECT *
+FROM dosije
+WHERE indeks = ANY (
+  SELECT indeks
+  FROM upisankurs
+);
+```
+
+---
+
+## 🧠 "SVAKI" <=> "NE POSTOJI NEKI KOJI NIJE"
+
+Ako želimo da proverimo da **nešto važi za sve**, pišemo to kao:
+> “Ne postoji neki za koji ne važi”.
+
+```sql
+-- Primer: student je položio sve ispite koje je polagao
+SELECT *
+FROM dosije D
+WHERE NOT EXISTS (
+  SELECT *
+  FROM ispit I
+  WHERE I.indeks = D.indeks
+    AND I.status <> 'o'
+);
+```
+
+---
+
+## 💡 Dodatni saveti
+
+- `EXISTS` je često brži od `IN`, naročito kada podupit vraća mnogo redova.
+- Ako podupit vraća više kolona nego što se očekuje – dolazi do greške.
+- `NOT IN` sa `NULL` vrednostima može dati neočekivane rezultate – izbegavaj ako je moguće, koristi `NOT EXISTS`.
+
+---
