@@ -156,10 +156,97 @@ WHERE espb > 5 AND naziv LIKE 'Mat%';
 
 ---
 
-## 🧠 IBM Db2 LUW specifičnosti
+# 🧠 CAS 2 - Vrste spajanja
 
 - Db2 je striktan u vezi sa tipovima – poređenje `VARCHAR` i `DATE` mora biti eksplicitno konvertovano ako nije kompatibilno.
 - Koristi `SYSIBM.SYSDUMMY1` kao dummy tabelu (ekvivalent `DUAL` u Oracleu).
 - Date format je često `'DD.MM.YYYY'`, ali ako ne radi, probaj `'YYYY-MM-DD'`.
 
 ---
+
+## 🔗 JOIN-ovi u SQL-u
+
+U SQL-u se **JOIN** koristi da se kombinuju podaci iz više tabela na osnovu logičke veze među njima (najčešće kroz strane ključeve).
+
+Postoje dve glavne kategorije:
+
+---
+
+### 🔸 **INNER JOIN**
+
+Vraća **samo one redove koji imaju podudaranje u obe tabele**.
+
+```sql
+SELECT D.IME, D.PREZIME, I.OCENA
+FROM DA.DOSIJE D
+INNER JOIN DA.ISPIT I ON D.INDEKS = I.INDEKS;
+```
+
+> Rezultat: samo studenti koji imaju bar jedan ispit.
+
+---
+
+### 🔸 **OUTER JOIN**
+
+Vraća sve redove iz jedne (ili obe) tabele, **bez obzira da li postoji odgovarajući red u drugoj**. Ako nema poklapanja, polja iz nedostajuće tabele biće `NULL`.
+
+---
+
+#### 🟡 LEFT OUTER JOIN (ili samo `LEFT JOIN`)
+
+Vraća **sve redove iz leve tabele** i **odgovarajuće iz desne** (ako ih ima).
+
+```sql
+SELECT D.IME, D.PREZIME, I.OCENA
+FROM DA.DOSIJE D
+LEFT JOIN DA.ISPIT I ON D.INDEKS = I.INDEKS;
+```
+
+> Rezultat: svi studenti, pa i oni koji **nisu polagali nijedan ispit** (`OCENA` će biti `NULL`).
+
+---
+
+#### 🟠 RIGHT OUTER JOIN (ili samo `RIGHT JOIN`)
+
+Vraća **sve redove iz desne tabele**, i **odgovarajuće iz leve**.
+
+```sql
+SELECT D.IME, D.PREZIME, I.OCENA
+FROM DA.DOSIJE D
+RIGHT JOIN DA.ISPIT I ON D.INDEKS = I.INDEKS;
+```
+
+> Rezultat: svi ispiti, pa i oni koji **ne pripadaju nijednom studentu** (teoretski – ako postoji takav slučaj u bazi).
+
+---
+
+#### 🔵 FULL OUTER JOIN
+
+Vraća **sve redove iz obe tabele**. Ako nema poklapanja, nedostajuća polja su `NULL`.
+
+```sql
+SELECT D.IME, D.PREZIME, I.OCENA
+FROM DA.DOSIJE D
+FULL JOIN DA.ISPIT I ON D.INDEKS = I.INDEKS;
+```
+
+> Rezultat: svi studenti i svi ispiti – čak i ako neki student nije polagao nijedan ispit, ili ako postoji ispit koji nije povezan ni sa jednim studentom.
+
+---
+
+### 📌 Napomena:
+
+- `INNER JOIN` je najčešći i podrazumevani tip.
+- `OUTER JOIN` je koristan za **analizu nedostajućih podataka**.
+- `LEFT JOIN` se koristi mnogo češće nego `RIGHT JOIN`, jer redosled možeš lako da obrneš.
+
+---
+
+### 🔁 Kratka paralela
+
+| JOIN tip        | Šta vraća?                                |
+|----------------|--------------------------------------------|
+| `INNER JOIN`   | Samo poklapanja                            |
+| `LEFT JOIN`    | Svi iz leve + poklapanja iz desne          |
+| `RIGHT JOIN`   | Svi iz desne + poklapanja iz leve          |
+| `FULL JOIN`    | Sve iz obe – i poklapanja i nepoklapanja   |
