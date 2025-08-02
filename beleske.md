@@ -386,3 +386,166 @@ WHERE NOT EXISTS (
 - `NOT IN` sa `NULL` vrednostima može dati neočekivane rezultate – izbegavaj ako je moguće, koristi `NOT EXISTS`.
 
 ---
+
+
+# 📚 ČAS 4 – Skupovni operatori i funkcije u SQL-u (IBM Db2 LUW)
+
+---
+
+## 🔀 Skupovni operatori
+
+Skupovni operatori kombinuju rezultate više SELECT upita.
+
+> 📌 **Pravilo**: Svi uključeni upiti moraju imati **isti broj kolona** i **kompatibilne tipove podataka**.
+
+### `UNION`
+
+Kombinuje rezultate dva upita i uklanja duplikate.
+
+```sql
+SELECT ime, ocena FROM studenti
+UNION
+SELECT prezime, indeks FROM prijave;
+```
+
+### `UNION ALL`
+
+Kao `UNION`, ali **zadržava duplikate**. Efikasniji jer ne proverava ponavljanja.
+
+```sql
+SELECT ime FROM studenti
+UNION ALL
+SELECT ime FROM alumni;
+```
+
+### `INTERSECT`
+
+Rezultat su samo oni redovi koji su **zajednički** za oba upita (bez duplikata).
+
+```sql
+SELECT indeks FROM studenti
+INTERSECT
+SELECT indeks FROM ispit;
+```
+
+### `INTERSECT ALL`
+
+Zadržava duplikate koji se pojavljuju u **oba** skupa.
+
+```sql
+SELECT indeks FROM studenti
+INTERSECT ALL
+SELECT indeks FROM prisutni;
+```
+
+### `EXCEPT` / `MINUS`
+
+Vraća redove iz prvog upita **koji ne postoje u drugom**. `EXCEPT` i `MINUS` znače isto.
+
+```sql
+SELECT indeks FROM studenti
+EXCEPT
+SELECT indeks FROM diplomirani;
+```
+
+### `EXCEPT ALL`
+
+Zadržava višestruke pojave redova koji se ne javljaju u drugom upitu.
+
+```sql
+SELECT indeks FROM studenti
+EXCEPT ALL
+SELECT indeks FROM iskljuceni;
+```
+
+---
+
+## 🕓 Funkcije za rad sa datumom i vremenom
+
+### 📅 Trenutni datum i vreme
+- `CURRENT DATE`
+- `CURRENT TIME`
+
+### 📌 Parsiranje i formatiranje
+- `DATE('01.01.2020')`
+- `TIME('13:45')`
+- `TIMESTAMP(DATE, TIME)`
+
+### 📆 Izvlačenje delova datuma
+```sql
+YEAR(datum)
+MONTH(datum)
+DAY(datum)
+DAYOFMONTH(datum)
+DAYOFYEAR(datum)
+DAYOFWEEK(datum)
+WEEK(datum)
+DAYNAME(datum, 'sr_latn_sr')
+MONTHNAME(datum, 'sr_latn_sr')
+```
+
+### 🧮 Razlika između datuma
+```sql
+DAYS_BETWEEN(date1, date2)
+MONTHS_BETWEEN(date1, date2)
+YEARS_BETWEEN(date1, date2)
+```
+
+### ➕ Dodavanje na datum/vreme
+```sql
+CURRENT DATE + 5 DAYS
+CURRENT TIME + 10 MINUTES - 30 SECONDS
+DATE('1.1.2020') + 2 YEARS
+```
+
+---
+
+## 🔠 Funkcije za rad sa tekstom (karakterima)
+
+```sql
+SUBSTR(str, start, len)
+CONCAT(x, y)
+x || y  -- spajanje stringova
+SPACE(x)
+POSSTR(x, y)
+REPEAT(str, x)
+REPLACE(str, x, y)
+LTRIM(str), RTRIM(str), TRIM(str)
+LENGTH(str)
+```
+
+---
+
+## ❓ Funkcije za rad sa NULL vrednostima
+
+```sql
+COALESCE(x, y, z...)  -- prvi ne-NULL
+NULLIF(x, y)          -- NULL ako su x i y jednaki
+```
+
+---
+
+## 🔄 Funkcije za konverziju
+
+```sql
+DECIMAL(x, y, z) / DEC(x, y, z)
+DOUBLE(x)
+CHAR(x)               -- broj u string
+CHAR(datetime, format) -- npr. CHAR(CURRENT DATE, USA)
+```
+
+---
+
+## 🔢 Numeričke funkcije
+
+```sql
+MOD(x, y)
+ABS(x)
+SIGN(x)      -- -1, 0, 1
+SQRT(x)
+RAND(seed)
+CEIL(x)
+FLOOR(x)
+ROUND(num, broj_decimala)
+SIN, COS, TAN, COTAN, ASIN, ACOS, ATAN, EXP...
+```
