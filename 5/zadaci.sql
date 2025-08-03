@@ -113,8 +113,32 @@ WHERE P.ESPB = (SELECT MIN(ESPB) FROM DA.PREDMET);
 -- izdvojiti indeks, ime, prezime, broj prijavljenih ispita, broj različitih predmeta koje je prijavio,
 -- broj ispita koje je položio i prosečnu ocenu.
 -- Rezultat urediti prema indeksu.
--- TODO
+SELECT D.INDEKS,
+       D.IME,
+       D.PREZIME,
+       COUNT(*)                                                        AS                                  BROJ_PRIJAVLJENIH_ISPITA,
+       COUNT(DISTINCT I.IDPREDMETA)                                    AS                                  BROJ_RAZLICITIH_PREDMETA,
+       SUM(CASE WHEN I.OCENA > 5 AND I.STATUS = 'o' THEN 1 ELSE 0 END) AS                                  BROJ_POLOZENIH,
+       DEC(ROUND(AVG(CASE WHEN I.OCENA > 5 AND I.STATUS = 'o' THEN I.OCENA * 1.0 ELSE NULL END), 2), 4, 2) PROSEK
+FROM DA.DOSIJE D
+         JOIN DA.ISPIT I ON D.INDEKS = I.INDEKS
+         JOIN DA.PREDMET P ON P.ID = I.IDPREDMETA
+WHERE LOWER(IME) LIKE '%o%'
+   OR LOWER(PREZIME) LIKE '%a%'
+GROUP BY D.INDEKS, D.IME, D.PREZIME
+HAVING SUM(CASE WHEN OCENA > 5 AND STATUS = 'o' THEN ESPB ELSE 0 END) BETWEEN 15 AND 25
+ORDER BY D.INDEKS;
 
 -- Izdvojiti parove studenata čija imena počinju na slovo M i za koje važi
 -- da su bar dva ista predmeta položili u istom ispitnom roku.
--- TODO
+SELECT DISTINCT D1.INDEKS, D1.IME, D1.PREZIME, D2.INDEKS, D2.IME, D2.PREZIME
+FROM DA.DOSIJE D1
+         JOIN DA.DOSIJE D2 ON D1.IME LIKE 'M%' AND D2.IME LIKE 'M%' AND D1.INDEKS < D2.INDEKS
+WHERE 2 <= (SELECT COUNT(*)
+            FROM DA.ISPIT I1
+                     JOIN DA.ISPIT I2 ON I1.SKGODINA = I2.SKGODINA AND I1.OZNAKAROKA = I2.OZNAKAROKA
+                AND I1.IDPREDMETA = I2.IDPREDMETA AND
+                                         D1.INDEKS = I1.INDEKS AND
+                                         D2.INDEKS = I2.INDEKS AND
+                                         I1.OCENA > 5 AND I1.STATUS = 'o' AND
+                                         I2.OCENA > 5 AND I2.STATUS = 'o');
